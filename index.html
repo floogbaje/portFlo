@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Flo Ogbaje — Frontend Engineer</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:        #0d0a0e;
+    --bg2:       #120f14;
+    --bg3:       #1a1520;
+    --card:      #130f16;
+    --border:    #2a1f30;
+    --pink:      #f4a7b9;
+    --pink-dim:  #f4a7b912;
+    --pink-mid:  #f4a7b940;
+    --pink-deep: #e8728f;
+    --gold:      #f5c842;
+    --gold-dim:  #f5c84215;
+    --white:     #f5f0f7;
+    --muted:     #9088a0;
+    --font-h: 'Syne', sans-serif;
+    --font-b: 'DM Sans', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--white);
+    font-family: var(--font-b); font-size: 16px;
+    line-height: 1.7; overflow-x: hidden; cursor: none;
+  }
+
+  /* CURSOR */
+  .cur  { position:fixed;top:0;left:0;pointer-events:none;z-index:9999;width:10px;height:10px;background:var(--pink);border-radius:50%;transform:translate(-50%,-50%);transition:width .18s,height .18s; }
+  .curR { position:fixed;top:0;left:0;pointer-events:none;z-index:9998;width:38px;height:38px;border:1.5px solid var(--pink);border-radius:50%;transform:translate(-50%,-50%);transition:width .2s,height .2s;opacity:.4; }
+
+  /* NOISE */
+  body::before { content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");opacity:.5; }
+
+  /* NAV */
+  nav { position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:1.4rem 4rem;border-bottom:1px solid transparent;transition:background .3s,border-color .3s; }
+  nav.scrolled { background:rgba(13,10,14,.9);backdrop-filter:blur(16px);border-color:var(--border); }
+  .nav-logo { font-family:var(--font-h);font-weight:800;font-size:1.15rem;letter-spacing:-.02em;color:var(--white);text-decoration:none; }
+  .nav-logo span { color:var(--pink); }
+  .nav-links { display:flex;gap:2.5rem;list-style:none; }
+  .nav-links a { font-size:.8rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:color .2s; }
+  .nav-links a:hover { color:var(--pink); }
+  .nav-cta { font-size:.8rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--bg);background:var(--pink);padding:.5rem 1.4rem;text-decoration:none;border-radius:2px;transition:opacity .2s,transform .2s; }
+  .nav-cta:hover { opacity:.85;transform:translateY(-1px); }
+
+  /* HERO */
+  .hero { position:relative;min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:8rem 4rem 5rem;overflow:hidden; }
+  .hero-grid { position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 75% 65% at 65% 45%,black 20%,transparent 75%);opacity:.55; }
+  .hero-glow  { position:absolute;top:5%;right:-8%;width:700px;height:700px;background:radial-gradient(circle,#f4a7b910 0%,transparent 65%);pointer-events:none; }
+  .hero-glow2 { position:absolute;bottom:10%;left:-5%;width:400px;height:400px;background:radial-gradient(circle,#e8728f08 0%,transparent 65%);pointer-events:none; }
+
+  .hero-tag { font-size:.76rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--pink);display:flex;align-items:center;gap:.7rem;margin-bottom:1.8rem;opacity:0;animation:fadeUp .6s .2s forwards; }
+  .hero-tag::before { content:'';display:block;width:30px;height:1px;background:var(--pink); }
+  .hero-name { font-family:var(--font-h);font-size:clamp(4rem,9.5vw,8.5rem);font-weight:800;line-height:.93;letter-spacing:-.04em;color:var(--white);margin-bottom:.7rem;opacity:0;animation:fadeUp .7s .35s forwards; }
+  .hero-name .acc { color:var(--pink);display:block; }
+  .hero-role { font-size:clamp(1rem,2vw,1.3rem);font-weight:300;color:var(--muted);max-width:580px;margin-bottom:3rem;opacity:0;animation:fadeUp .7s .5s forwards; }
+  .hero-role strong { color:var(--white);font-weight:500; }
+  .hero-actions { display:flex;gap:1.2rem;flex-wrap:wrap;opacity:0;animation:fadeUp .7s .65s forwards; }
+
+  .btn-p { display:inline-flex;align-items:center;gap:.5rem;background:var(--pink);color:var(--bg);font-family:var(--font-b);font-weight:600;font-size:.9rem;letter-spacing:.04em;padding:.85rem 2rem;text-decoration:none;border-radius:2px;transition:transform .2s,box-shadow .2s; }
+  .btn-p:hover { transform:translateY(-2px);box-shadow:0 10px 35px #f4a7b935; }
+  .btn-g { display:inline-flex;align-items:center;gap:.5rem;border:1px solid var(--border);color:var(--muted);font-family:var(--font-b);font-weight:500;font-size:.9rem;padding:.85rem 2rem;text-decoration:none;border-radius:2px;transition:border-color .2s,color .2s; }
+  .btn-g:hover { border-color:var(--pink);color:var(--pink); }
+
+  .hero-stats { position:absolute;bottom:3.5rem;left:4rem;display:flex;gap:3.5rem;opacity:0;animation:fadeUp .7s .85s forwards; }
+  .s-num { font-family:var(--font-h);font-size:2.3rem;font-weight:800;line-height:1;color:var(--white);letter-spacing:-.04em; }
+  .s-num span { color:var(--pink); }
+  .s-lbl { font-size:.72rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:.3rem; }
+  .hero-scroll { position:absolute;bottom:3.5rem;right:4rem;display:flex;flex-direction:column;align-items:center;gap:.5rem;opacity:0;animation:fadeUp .7s 1s forwards; }
+  .hero-scroll span { font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);writing-mode:vertical-rl; }
+  .scroll-ln { width:1px;height:52px;background:linear-gradient(var(--pink),transparent);animation:sPulse 2.2s infinite; }
+
+  /* SECTIONS */
+  section { position:relative;padding:7rem 4rem; }
+  .si { max-width:1100px;margin:0 auto; }
+  .slbl { display:flex;align-items:center;gap:1rem;margin-bottom:3.5rem; }
+  .snum { font-family:var(--font-h);font-size:.72rem;font-weight:700;letter-spacing:.2em;color:var(--pink);text-transform:uppercase; }
+  .sline { flex:1;max-width:40px;height:1px;background:var(--pink); }
+  .stitle { font-family:var(--font-h);font-size:clamp(2rem,4vw,3.1rem);font-weight:800;letter-spacing:-.03em;color:var(--white);line-height:1.1; }
+  .stitle em { color:var(--pink);font-style:normal; }
+
+  /* ABOUT */
+  .about-grid { display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start;margin-top:3rem; }
+  .at p { color:var(--muted);line-height:1.9;margin-bottom:1.3rem;font-size:1rem; }
+  .at p strong { color:var(--white);font-weight:500; }
+  .pills { display:flex;flex-wrap:wrap;gap:.55rem;margin-top:2rem; }
+  .pill { font-size:.78rem;font-weight:500;padding:.38rem .9rem;border-radius:2px;border:1px solid var(--border);color:var(--muted);transition:border-color .2s,color .2s; }
+  .pill:hover { border-color:var(--pink);color:var(--pink); }
+  .ar { display:flex;flex-direction:column;gap:1.1rem; }
+  .acard { background:var(--card);border:1px solid var(--border);padding:1.5rem;border-radius:4px;transition:border-color .3s,transform .3s; }
+  .acard:hover { border-color:var(--pink-mid);transform:translateX(5px); }
+  .acard-ico { font-size:1.3rem;margin-bottom:.6rem; }
+  .acard h4 { font-family:var(--font-h);font-size:.95rem;font-weight:700;color:var(--white);margin-bottom:.35rem; }
+  .acard p { font-size:.87rem;color:var(--muted);line-height:1.65; }
+
+  /* EXPERIENCE */
+  .exp-s { background:var(--bg2); }
+  .exp-list { display:flex;flex-direction:column;margin-top:3rem; }
+  .ei { display:grid;grid-template-columns:190px 1fr;gap:0 3rem;padding:2.5rem 0;border-bottom:1px solid var(--border);position:relative; }
+  .ei:first-child { border-top:1px solid var(--border); }
+  .ei::before { content:'';position:absolute;left:190px;top:0;bottom:0;width:1px;background:var(--border); }
+  .em { padding-right:1.5rem; }
+  .edates { font-size:.75rem;letter-spacing:.09em;text-transform:uppercase;color:var(--pink);margin-bottom:.5rem; }
+  .eco { font-family:var(--font-h);font-size:1rem;font-weight:700;color:var(--white);line-height:1.3; }
+  .eloc { font-size:.78rem;color:var(--muted);margin-top:.3rem; }
+  .ec { padding-left:3rem; }
+  .etitle { font-family:var(--font-h);font-size:1.2rem;font-weight:700;color:var(--white);margin-bottom:1rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap; }
+  .ebadge { font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--bg);background:var(--pink);padding:.2rem .6rem;border-radius:2px; }
+  .ebuls { list-style:none;display:flex;flex-direction:column;gap:.6rem; }
+  .ebuls li { font-size:.93rem;color:var(--muted);line-height:1.78;padding-left:1.2rem;position:relative; }
+  .ebuls li::before { content:'→';position:absolute;left:0;color:var(--pink);font-size:.74rem;top:.38rem; }
+
+  /* ═══════════════════════════════
+     FEATURED PROJECT — BAIZMNT
+  ═══════════════════════════════ */
+  .featured-wrap { margin-top:3.5rem; }
+  .featured-label { font-size:.72rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--pink);display:flex;align-items:center;gap:.8rem;margin-bottom:2rem; }
+  .featured-label::after { content:'';flex:1;max-width:60px;height:1px;background:var(--pink-mid); }
+
+  .featured-card {
+    position:relative;overflow:hidden;border-radius:6px;
+    border:1px solid var(--border);background:var(--card);
+    display:grid;grid-template-columns:1fr 1fr;min-height:460px;
+    transition:border-color .4s;
+  }
+  .featured-card:hover { border-color:var(--pink-mid); }
+
+  /* animated gradient bg */
+  .featured-card::before {
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background: radial-gradient(ellipse 80% 70% at 80% 30%, #f4a7b90d 0%, transparent 60%),
+                radial-gradient(ellipse 50% 50% at 20% 80%, #e8728f08 0%, transparent 55%);
+    z-index:0;
+  }
+
+  .fc-left { position:relative;z-index:1;padding:3rem 3rem 3rem 3.5rem;display:flex;flex-direction:column;justify-content:space-between; }
+  .fc-eyebrow { font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--pink);margin-bottom:1.2rem; }
+  .fc-title { font-family:var(--font-h);font-size:clamp(2.8rem,5vw,4.2rem);font-weight:800;letter-spacing:-.05em;line-height:.92;color:var(--white);margin-bottom:.6rem; }
+  .fc-title .fc-tagline { display:block;font-size:clamp(.9rem,1.5vw,1.1rem);font-weight:400;letter-spacing:.05em;color:var(--muted);margin-top:.7rem;font-family:var(--font-b); }
+  .fc-desc { font-size:.97rem;color:var(--muted);line-height:1.85;margin-bottom:2rem;max-width:420px; }
+  .fc-meta { display:flex;flex-wrap:wrap;gap:.9rem;margin-bottom:2.2rem; }
+  .fc-chip { font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.3rem .85rem;border-radius:2px;border:1px solid var(--border);color:var(--muted);background:var(--bg3); }
+  .fc-chip.live { border-color:var(--pink-mid);color:var(--pink);background:var(--pink-dim);display:flex;align-items:center;gap:.4rem; }
+  .fc-chip.live::before { content:'';width:6px;height:6px;border-radius:50%;background:var(--pink);box-shadow:0 0 6px var(--pink);animation:pulse 2s infinite; }
+  .fc-actions { display:flex;gap:1rem;flex-wrap:wrap; }
+  .fc-btn-p { display:inline-flex;align-items:center;gap:.5rem;background:var(--pink);color:var(--bg);font-family:var(--font-b);font-weight:700;font-size:.88rem;letter-spacing:.05em;padding:.8rem 1.8rem;text-decoration:none;border-radius:2px;transition:transform .2s,box-shadow .2s; }
+  .fc-btn-p:hover { transform:translateY(-2px);box-shadow:0 8px 28px #f4a7b940; }
+  .fc-btn-g { display:inline-flex;align-items:center;gap:.5rem;border:1px solid var(--border);color:var(--muted);font-family:var(--font-b);font-weight:500;font-size:.88rem;padding:.8rem 1.8rem;text-decoration:none;border-radius:2px;transition:border-color .2s,color .2s; }
+  .fc-btn-g:hover { border-color:var(--pink);color:var(--pink); }
+
+  .fc-right { position:relative;z-index:1;padding:3rem 3.5rem 3rem 2rem;display:flex;flex-direction:column;gap:1.2rem;border-left:1px solid var(--border); }
+  .fc-right-title { font-family:var(--font-h);font-size:.72rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem; }
+  .fc-pill-row { display:flex;flex-wrap:wrap;gap:.5rem; }
+  .fc-pill { font-size:.8rem;padding:.32rem .75rem;border-radius:2px;background:var(--bg3);color:var(--white);border:1px solid var(--border); }
+
+  .fc-stats { display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.5rem; }
+  .fc-stat { background:var(--bg3);border:1px solid var(--border);padding:1.1rem;border-radius:4px; }
+  .fc-stat-num { font-family:var(--font-h);font-size:1.6rem;font-weight:800;color:var(--white);letter-spacing:-.04em;line-height:1; }
+  .fc-stat-num span { color:var(--pink); }
+  .fc-stat-lbl { font-size:.72rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:.3rem; }
+
+  .fc-highlights { display:flex;flex-direction:column;gap:.7rem;margin-top:.5rem; }
+  .fc-hl { display:flex;align-items:flex-start;gap:.7rem;font-size:.87rem;color:var(--muted);line-height:1.6; }
+  .fc-hl::before { content:'✦';color:var(--pink);font-size:.6rem;margin-top:.35rem;flex-shrink:0; }
+
+  /* OTHER PROJECTS GRID */
+  .proj-subtitle { font-size:.72rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:.8rem;margin-top:4rem;margin-bottom:2rem; }
+  .proj-subtitle::after { content:'';flex:1;height:1px;background:var(--border); }
+  .proj-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.4rem; }
+  .pc { background:var(--card);border:1px solid var(--border);border-radius:4px;padding:1.8rem;display:flex;flex-direction:column;position:relative;overflow:hidden;transition:transform .3s,box-shadow .3s; }
+  .pc::before { content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--pink-deep),var(--pink));transform:scaleX(0);transform-origin:left;transition:transform .35s; }
+  .pc:hover { transform:translateY(-4px);box-shadow:0 20px 50px rgba(0,0,0,.4); }
+  .pc:hover::before { transform:scaleX(1); }
+  .pc-type { font-size:.7rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--pink);margin-bottom:.85rem; }
+  .pc-name { font-family:var(--font-h);font-size:1.2rem;font-weight:700;color:var(--white);margin-bottom:.7rem;line-height:1.2; }
+  .pc-desc { font-size:.89rem;color:var(--muted);line-height:1.78;flex:1; }
+  .pc-tags { display:flex;flex-wrap:wrap;gap:.4rem;margin-top:1.3rem; }
+  .pc-tag { font-size:.7rem;font-weight:500;padding:.22rem .6rem;border-radius:2px;background:var(--bg3);color:var(--muted);border:1px solid var(--border); }
+  .pc-links { display:flex;gap:1.2rem;margin-top:1.4rem;flex-wrap:wrap; }
+  .pc-link { font-size:.78rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--pink);text-decoration:none;display:flex;align-items:center;gap:.35rem;transition:gap .2s; }
+  .pc-link:hover { gap:.6rem; }
+  .pc.wip { opacity:.7; }
+
+  /* SKILLS */
+  .sk-s { background:var(--bg2); }
+  .sk-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:1.8rem;margin-top:3rem; }
+  .sg { background:var(--card);border:1px solid var(--border);padding:2rem;border-radius:4px; }
+  .sg h4 { font-family:var(--font-h);font-size:.74rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--pink);margin-bottom:1.3rem; }
+  .stags { display:flex;flex-wrap:wrap;gap:.5rem; }
+  .stag { font-size:.82rem;font-weight:400;padding:.35rem .8rem;border-radius:2px;background:var(--bg3);color:var(--white);border:1px solid var(--border);transition:border-color .2s,color .2s; }
+  .stag:hover { border-color:var(--pink-mid);color:var(--pink); }
+
+  /* CONTACT */
+  .ct-grid { display:grid;grid-template-columns:1.2fr 1fr;gap:5rem;margin-top:3.5rem;align-items:start; }
+  .ct-intro { font-size:1rem;color:var(--muted);line-height:1.9; }
+  .ct-intro strong { color:var(--white);font-weight:500; }
+  .ct-links { display:flex;flex-direction:column;gap:1rem;margin-top:2.5rem; }
+  .ct-link { display:flex;align-items:center;gap:1rem;text-decoration:none;padding:1.1rem 1.4rem;border:1px solid var(--border);border-radius:4px;transition:border-color .2s,background .2s; }
+  .ct-link:hover { border-color:var(--pink);background:var(--pink-dim); }
+  .ct-ico { font-size:1rem;color:var(--pink);width:22px;text-align:center; }
+  .ct-lbl { font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted); }
+  .ct-val { font-size:.93rem;color:var(--white);margin-top:.1rem; }
+  .avail { display:inline-flex;align-items:center;gap:.6rem;background:var(--bg3);border:1px solid var(--border);padding:.7rem 1.2rem;border-radius:4px;margin-bottom:1.8rem; }
+  .adot { width:8px;height:8px;border-radius:50%;background:var(--pink);box-shadow:0 0 8px var(--pink);animation:pulse 2s infinite; }
+  .atext { font-size:.82rem;color:var(--white); }
+  .ct-note { background:var(--card);border:1px solid var(--border);padding:1.8rem;border-radius:4px; }
+  .ct-note p { font-size:.91rem;color:var(--muted);line-height:1.82; }
+  .ct-note p+p { margin-top:1rem; }
+  .ct-note strong { color:var(--pink);font-weight:500; }
+
+  /* FOOTER */
+  footer { border-top:1px solid var(--border);padding:2rem 4rem;display:flex;align-items:center;justify-content:space-between; }
+  footer p { font-size:.78rem;color:var(--muted); }
+  footer span { color:var(--pink); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp { from{opacity:0;transform:translateY(26px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes sPulse { 0%,100%{opacity:.35} 50%{opacity:1} }
+  @keyframes pulse { 0%,100%{box-shadow:0 0 4px var(--pink)} 50%{box-shadow:0 0 14px var(--pink)} }
+  .reveal { opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease; }
+  .reveal.visible { opacity:1;transform:translateY(0); }
+
+  /* RESPONSIVE */
+  @media(max-width:1000px){
+    .featured-card { grid-template-columns:1fr; }
+    .fc-right { border-left:none;border-top:1px solid var(--border);padding:2rem 2.5rem; }
+    .fc-left { padding:2.5rem; }
+  }
+  @media(max-width:900px){
+    nav { padding:1.2rem 2rem; }
+    .nav-links { display:none; }
+    section { padding:5rem 2rem; }
+    .hero { padding:7rem 2rem 5rem; }
+    .hero-stats { left:2rem;gap:2rem; }
+    .hero-scroll { display:none; }
+    .about-grid { grid-template-columns:1fr;gap:3rem; }
+    .ei { grid-template-columns:1fr; }
+    .ei::before { display:none; }
+    .ec { padding-left:0;margin-top:1rem; }
+    .sk-grid { grid-template-columns:1fr 1fr; }
+    .ct-grid { grid-template-columns:1fr;gap:3rem; }
+    footer { flex-direction:column;gap:1rem;text-align:center; }
+  }
+  @media(max-width:600px){
+    .sk-grid { grid-template-columns:1fr; }
+    .proj-grid { grid-template-columns:1fr; }
+    .fc-stats { grid-template-columns:1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="cur" id="cur"></div>
+<div class="curR" id="curR"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="nav-logo" href="#">Flo<span>.</span></a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a class="nav-cta" href="#contact">Hire Me</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow2"></div>
+  <div class="hero-tag">Frontend Engineer &nbsp;&middot;&nbsp; Available for Work</div>
+  <h1 class="hero-name">Flo<br><span class="acc">Ogbaje.</span></h1>
+  <p class="hero-role">I build <strong>fast, accessible, and beautiful interfaces</strong> &mdash; from concept to production.<br>React &nbsp;&middot;&nbsp; Next.js &nbsp;&middot;&nbsp; TypeScript &nbsp;&middot;&nbsp; React Native &nbsp;&middot;&nbsp; TailwindCSS</p>
+  <div class="hero-actions">
+    <a href="#projects" class="btn-p">View My Work &rarr;</a>
+    <a href="#contact" class="btn-g">Let&rsquo;s Talk</a>
+  </div>
+  <div class="hero-stats">
+    <div><div class="s-num">5<span>+</span></div><div class="s-lbl">Years Experience</div></div>
+    <div><div class="s-num">6<span>+</span></div><div class="s-lbl">Live Projects</div></div>
+    <div><div class="s-num">100<span>%</span></div><div class="s-lbl">Remote Ready</div></div>
+  </div>
+  <div class="hero-scroll"><div class="scroll-ln"></div><span>Scroll</span></div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="si">
+    <div class="slbl"><span class="snum">01 / About</span><div class="sline"></div></div>
+    <h2 class="stitle reveal">I don&rsquo;t just build UIs &mdash;<br>I <em>think</em> in products.</h2>
+    <div class="about-grid">
+      <div class="at reveal">
+        <p>I&rsquo;m a <strong>Frontend Software Engineer</strong> with 5+ years building responsive, accessible, and scalable applications. My work spans fintech, SaaS, e-commerce, nightlife, and digital product startups &mdash; always with a focus on interfaces that are fast, intuitive, and built to last.</p>
+        <p>What sets me apart: before going deep into engineering, I spent years in <strong>sales, product operations, and executive strategy</strong>. I understand business goals, user behaviour, and product lifecycle &mdash; not just component trees and API calls. I&rsquo;ve also taken that thinking all the way to founding my own product: <strong>Baizmnt</strong>, a live nightlife discovery platform I conceived, designed, and shipped.</p>
+        <p>I&rsquo;m remote-native, thrive in async-first teams, and leverage <strong>AI tools deliberately</strong> &mdash; Claude, Lovable, and coding assistants &mdash; to ship faster without compromising quality.</p>
+        <div class="pills">
+          <span class="pill">React / Next.js</span><span class="pill">TypeScript</span><span class="pill">React Native</span>
+          <span class="pill">Expo</span><span class="pill">TailwindCSS</span><span class="pill">Figma</span>
+          <span class="pill">Firebase</span><span class="pill">AI-Assisted Dev</span>
+        </div>
+      </div>
+      <div class="ar reveal">
+        <div class="acard"><div class="acard-ico">&#9889;</div><h4>Fast Delivery</h4><p>I use AI tooling strategically &mdash; Claude, Lovable, and code assistants &mdash; to ship features faster without cutting corners on quality or accessibility.</p></div>
+        <div class="acard"><div class="acard-ico">&#127919;</div><h4>Product Thinking</h4><p>Having worked directly with CEOs and CTOs, and having founded my own product, I connect engineering decisions to business outcomes &mdash; not just tickets.</p></div>
+        <div class="acard"><div class="acard-ico">&#9851;</div><h4>Accessibility First</h4><p>WCAG compliance and semantic HTML are non-negotiables in everything I build. Good UI works for every user, on every device.</p></div>
+        <div class="acard"><div class="acard-ico">&#127758;</div><h4>Remote Native</h4><p>Every role I&rsquo;ve held has been remote. I&rsquo;m built for async collaboration, clear documentation, and distributed team workflows.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience" class="exp-s">
+  <div class="si">
+    <div class="slbl"><span class="snum">02 / Experience</span><div class="sline"></div></div>
+    <h2 class="stitle reveal">Where I&rsquo;ve <em>built things.</em></h2>
+    <div class="exp-list">
+
+      <div class="ei reveal">
+        <div class="em"><div class="edates">Dec 2023 &mdash; Present</div><div class="eco">TagDev Technologies</div><div class="eloc">Remote</div></div>
+        <div class="ec">
+          <div class="etitle">Frontend Developer <span class="ebadge">Current</span></div>
+          <ul class="ebuls">
+            <li>Architected a library of reusable React/TypeScript components adopted across multiple client products, improving UI consistency and significantly reducing redundant code.</li>
+            <li>Integrated AI-assisted workflows into feature development and debugging cycles, measurably improving sprint delivery speed and turnaround time.</li>
+            <li>Improved Lighthouse performance scores, accessibility compliance (WCAG), and SEO across multiple client-facing platforms.</li>
+            <li>Collaborated with stakeholders to define requirements, manage feature releases, and maintain technical documentation.</li>
+            <li>Led UI iteration workflows and research support during product upgrade cycles.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="ei reveal">
+        <div class="em"><div class="edates">Apr 2023 &mdash; Jun 2025</div><div class="eco">Confidential Employer</div><div class="eloc">Remote</div></div>
+        <div class="ec">
+          <div class="etitle">Product Operations Lead</div>
+          <ul class="ebuls">
+            <li>Collaborated directly with the CEO/CTO to manage strategic operations and the end-to-end lifecycle of multiple digital products.</li>
+            <li>Led UX planning and feature prioritisation sessions, improving product clarity, cross-team alignment, and delivery timelines.</li>
+            <li>Leveraged AI tools to produce research, documentation, and performance insights that directly informed leadership decisions.</li>
+            <li>Streamlined cross-team collaboration workflows across distributed teams.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="ei reveal">
+        <div class="em"><div class="edates">Jun 2022 &mdash; Nov 2022</div><div class="eco">BroadPage Technologies</div><div class="eloc">Lagos</div></div>
+        <div class="ec">
+          <div class="etitle">Frontend Developer</div>
+          <ul class="ebuls">
+            <li>Translated high-fidelity Figma designs into pixel-accurate, performant React/Next.js components &mdash; maintaining design integrity while optimising for speed and reusability.</li>
+            <li>Refactored rendering logic and component architecture to improve page load performance and codebase maintainability.</li>
+            <li>Built responsive, accessible web interfaces with consistent cross-browser compatibility.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="ei reveal">
+        <div class="em"><div class="edates">Nov 2020 &mdash; Mar 2021</div><div class="eco">Afriex</div><div class="eloc">Remote</div></div>
+        <div class="ec">
+          <div class="etitle">Frontend Developer</div>
+          <ul class="ebuls">
+            <li>Contributed to the early-stage frontend build of Afriex&rsquo;s cross-border payments platform &mdash; implementing React/Sass features that shaped the core UI and onboarding flow.</li>
+            <li>Balanced rapid iteration with code quality and design precision in an agile startup environment.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="si">
+    <div class="slbl"><span class="snum">03 / Projects</span><div class="sline"></div></div>
+    <h2 class="stitle reveal">Selected <em>work.</em></h2>
+
+    <!-- ★ BAIZMNT FEATURED ★ -->
+    <div class="featured-wrap reveal">
+      <div class="featured-label">&#9733;&nbsp; Featured Project</div>
+      <div class="featured-card">
+        <div class="fc-left">
+          <div>
+            <div class="fc-eyebrow">Founder &nbsp;&middot;&nbsp; Product &nbsp;&middot;&nbsp; Engineering</div>
+            <div class="fc-title">
+              Baizmnt
+              <span class="fc-tagline">the city&rsquo;s pulse</span>
+            </div>
+          </div>
+          <p class="fc-desc">
+            A real-time nightlife discovery and booking ecosystem I conceived, designed, and shipped from scratch. Baizmnt connects partygoers, DJs, event organisers, photographers, studios, and venues &mdash; solving the fragmentation that has defined African nightlife planning for years. No unified platform existed. I built one.
+          </p>
+          <div class="fc-meta">
+            <span class="fc-chip live">Live Product</span>
+            <span class="fc-chip">React</span>
+            <span class="fc-chip">TypeScript</span>
+            <span class="fc-chip">TailwindCSS</span>
+            <span class="fc-chip">Firebase</span>
+          </div>
+          <div class="fc-actions">
+            <a href="https://baizmnt.com" target="_blank" rel="noopener" class="fc-btn-p">Visit Baizmnt &rarr;</a>
+            <a href="#contact" class="fc-btn-g">Ask Me About It</a>
+          </div>
+        </div>
+
+        <div class="fc-right">
+          <div>
+            <div class="fc-right-title">What It Does</div>
+            <div class="fc-highlights">
+              <div class="fc-hl">Real-time event discovery &mdash; find what&rsquo;s happening in your city right now, filtered by genre, vibe, location, and crowd type.</div>
+              <div class="fc-hl">DJ &amp; creative booking marketplace &mdash; DJs, photographers, and dancers with portfolio profiles, availability calendars, and booking flows.</div>
+              <div class="fc-hl">Ticketing system &mdash; buy, store, and resell tickets with QR wallet support built in.</div>
+              <div class="fc-hl">Event organiser tools &mdash; create events, manage lineups, publish set times, and track ticket sales.</div>
+              <div class="fc-hl">Social layer &mdash; likes, comments, follows, and an activity feed built for nightlife communities.</div>
+            </div>
+          </div>
+
+          <div>
+            <div class="fc-right-title" style="margin-top:1.5rem">Product Stats</div>
+            <div class="fc-stats">
+              <div class="fc-stat"><div class="fc-stat-num">5<span>+</span></div><div class="fc-stat-lbl">User Types Served</div></div>
+              <div class="fc-stat"><div class="fc-stat-num">1<span>.</span>0</div><div class="fc-stat-lbl">MVP Live</div></div>
+              <div class="fc-stat"><div class="fc-stat-num">3<span>+</span></div><div class="fc-stat-lbl">Revenue Streams</div></div>
+              <div class="fc-stat"><div class="fc-stat-num">100<span>%</span></div><div class="fc-stat-lbl">Solo Built</div></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="fc-right-title" style="margin-top:1.5rem">Stack &amp; Approach</div>
+            <div class="fc-pill-row">
+              <span class="fc-pill">React</span><span class="fc-pill">TypeScript</span>
+              <span class="fc-pill">TailwindCSS</span><span class="fc-pill">Supabase</span>
+              <span class="fc-pill">Vite</span><span class="fc-pill">Vercel</span>
+              <span class="fc-pill">Figma</span><span class="fc-pill">Claude</span>
+            </div>
+          </div>
+
+          <div class="hero-tag" style="margin-top:1.8rem;font-size:.72rem;color:var(--muted);">Want the full story? I wrote a detailed case study on Baizmnt&rsquo;s conception, design, and development journey.</div>
+            <a href="baizmnt_case_study.html" target="_blank" rel="noopener" class="pc-type">Baizmnt Case Study &rarr;</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OTHER PROJECTS -->
+    <div class="proj-subtitle">Other Projects</div>
+    <div class="proj-grid">
+
+      <div class="pc reveal">
+        <div class="pc-type">Web App &nbsp;&middot;&nbsp; Dashboard &amp; Analytics</div>
+        <div class="pc-name">RYP</div>
+        <p class="pc-desc">A login-gated analytics and dashboard platform with full authentication flows, protected routing, and a structured data interface designed for clarity at a glance.</p>
+        <div class="pc-tags"><span class="pc-tag">React</span><span class="pc-tag">TypeScript</span><span class="pc-tag">Vite</span><span class="pc-tag">Vercel</span></div>
+        <div class="pc-links"><a href="https://ryp-sgrd.vercel.app/login" target="_blank" rel="noopener" class="pc-link">Live Site &rarr;</a></div>
+      </div>
+
+      <div class="pc wip reveal">
+        <div class="pc-type">Marketplace &nbsp;&middot;&nbsp; In Progress</div>
+        <div class="pc-name">Kasuwar</div>
+        <p class="pc-desc">A live auction marketplace in active development. Users list items, place bids, and transact in real time &mdash; scaffolded with Lovable and refined by hand.</p>
+        <div class="pc-tags"><span class="pc-tag">Lovable</span><span class="pc-tag">React</span><span class="pc-tag">TypeScript</span><span class="pc-tag">TailwindCSS</span></div>
+        <div class="pc-links"><a href="https://kasuwar.lovable.app" target="_blank" rel="noopener" class="pc-link">Live Site &rarr;</a></div>
+      </div>
+
+      <div class="pc reveal">
+        <div class="pc-type">Web App &nbsp;&middot;&nbsp; Metrics Dashboard</div>
+        <div class="pc-name">Metrixx</div>
+        <p class="pc-desc">A metrics and analytics dashboard that surfaces performance data in a clean, visual format. Translating complex data into digestible UI with strong layout hierarchy and responsive design.</p>
+        <div class="pc-tags"><span class="pc-tag">React</span><span class="pc-tag">JavaScript</span><span class="pc-tag">TailwindCSS</span><span class="pc-tag">Vercel</span></div>
+        <div class="pc-links"><a href="https://metrixx.vercel.app/" target="_blank" rel="noopener" class="pc-link">Live Site &rarr;</a></div>
+      </div>
+
+      <div class="pc reveal">
+        <div class="pc-type">E-Commerce &nbsp;&middot;&nbsp; Storefront</div>
+        <div class="pc-name">LeatherMore</div>
+        <p class="pc-desc">A polished e-commerce storefront for a leather goods brand. Premium feel, fast performance, and a conversion-aware layout &mdash; the kind of frontend that makes products look as good as they are.</p>
+        <div class="pc-tags"><span class="pc-tag">React</span><span class="pc-tag">JavaScript</span><span class="pc-tag">CSS</span><span class="pc-tag">Vercel</span></div>
+        <div class="pc-links"><a href="https://leathermore.vercel.app/" target="_blank" rel="noopener" class="pc-link">Live Site &rarr;</a></div>
+      </div>
+
+      <div class="pc reveal">
+        <div class="pc-type">Productivity &nbsp;&middot;&nbsp; Web App</div>
+        <div class="pc-name">Memo</div>
+        <p class="pc-desc">A clean, fast note-taking app built around simplicity. Quick capture, clear organisation, distraction-free writing. A study in deliberate UX restraint &mdash; what&rsquo;s left out matters as much as what&rsquo;s in.</p>
+        <div class="pc-tags"><span class="pc-tag">React</span><span class="pc-tag">JavaScript</span><span class="pc-tag">CSS</span><span class="pc-tag">Vercel</span></div>
+        <div class="pc-links"><a href="https://memo-unekuogbaje.vercel.app/" target="_blank" rel="noopener" class="pc-link">Live Site &rarr;</a></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills" class="sk-s">
+  <div class="si">
+    <div class="slbl"><span class="snum">04 / Skills</span><div class="sline"></div></div>
+    <h2 class="stitle reveal">What I <em>work with.</em></h2>
+    <div class="sk-grid">
+      <div class="sg reveal">
+        <h4>Languages &amp; Frameworks</h4>
+        <div class="stags">
+          <span class="stag">TypeScript</span><span class="stag">JavaScript</span><span class="stag">React.js</span>
+          <span class="stag">Next.js</span><span class="stag">React Native</span><span class="stag">HTML5</span>
+          <span class="stag">CSS3 / SCSS</span><span class="stag">Tailwind CSS</span><span class="stag">Bootstrap</span><span class="stag">Sass</span>
+        </div>
+      </div>
+      <div class="sg reveal">
+        <h4>Tooling &amp; Platforms</h4>
+        <div class="stags">
+          <span class="stag">Git / GitHub</span><span class="stag">Firebase</span><span class="stag">Vercel</span>
+          <span class="stag">Expo</span><span class="stag">Figma</span><span class="stag">Claude</span><span class="stag">Lovable</span>
+        </div>
+      </div>
+      <div class="sg reveal">
+        <h4>Practices</h4>
+        <div class="stags">
+          <span class="stag">Accessibility (WCAG)</span><span class="stag">SEO Optimisation</span>
+          <span class="stag">Agile / Scrum</span><span class="stag">UI/UX Ideation</span>
+          <span class="stag">Component Architecture</span><span class="stag">Performance Optimisation</span>
+          <span class="stag">AI-Assisted Dev</span><span class="stag">Workflow Automation</span><span class="stag">Product Strategy</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="si">
+    <div class="slbl"><span class="snum">05 / Contact</span><div class="sline"></div></div>
+    <h2 class="stitle reveal">Let&rsquo;s build something <em>together.</em></h2>
+    <div class="ct-grid">
+      <div class="reveal">
+        <p class="ct-intro">Whether you&rsquo;re looking to <strong>hire a frontend engineer</strong>, need a reliable collaborator for a <strong>freelance project</strong>, or want to talk about <strong>Baizmnt</strong> &mdash; my inbox is open.<br><br>I&rsquo;m particularly drawn to roles where <strong>product thinking matters as much as clean code</strong> &mdash; startups, scale-ups, and teams building things people actually use.</p>
+        <div class="ct-links">
+          <a href="mailto:your.email@email.com" class="ct-link">
+            <span class="ct-ico">&#9993;</span>
+            <div><div class="ct-lbl">Email</div><div class="ct-val">floogbaje@gmail.com</div></div>
+          </a>
+          <a href="https://www.linkedin.com/in/flo-ogbaje/" target="_blank" rel="noopener" class="ct-link">
+            <span class="ct-ico">in</span>
+            <div><div class="ct-lbl">LinkedIn</div><div class="ct-val">flo.ogbaje</div></div>
+          </a>
+          <a href="https://github.com/floogbaje" target="_blank" rel="noopener" class="ct-link">
+            <span class="ct-ico">&#9998;</span>
+            <div><div class="ct-lbl">GitHub</div><div class="ct-val">flo.ogbaje</div></div>
+          </a>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="avail"><div class="adot"></div><span class="atext">Available for new opportunities</span></div>
+        <div class="ct-note">
+          <p>I&rsquo;m open to <strong>full-time remote roles</strong>, contract engagements, and freelance projects. I&rsquo;m based in Nigeria and comfortable working across time zones.</p>
+          <p>If you have an NDA-covered project or want to see more work beyond what&rsquo;s publicly listed, just reach out &mdash; I&rsquo;m happy to share more in context.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>&copy; 2026 <span>Flo Ogbaje</span>. Building ease.</p>
+  <p>Frontend Engineer &nbsp;&middot;&nbsp; Remote &nbsp;&middot;&nbsp; Nigeria</p>
+</footer>
+
+<script>
+  // Cursor
+  const cur=document.getElementById('cur'),curR=document.getElementById('curR');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+  (function tick(){
+    cur.style.left=mx+'px';cur.style.top=my+'px';
+    rx+=(mx-rx)*.11;ry+=(my-ry)*.11;
+    curR.style.left=rx+'px';curR.style.top=ry+'px';
+    requestAnimationFrame(tick);
+  })();
+  document.querySelectorAll('a,button').forEach(el=>{
+    el.addEventListener('mouseenter',()=>{cur.style.width='18px';cur.style.height='18px';curR.style.width='52px';curR.style.height='52px';});
+    el.addEventListener('mouseleave',()=>{cur.style.width='10px';cur.style.height='10px';curR.style.width='38px';curR.style.height='38px';});
+  });
+  // Nav
+  const nav=document.getElementById('nav');
+  window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>50));
+  // Reveal
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach((e,i)=>{
+      if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*90);obs.unobserve(e.target);}
+    });
+  },{threshold:0.08});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>

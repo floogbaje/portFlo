@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Baizmnt — Case Study by Flo Ogbaje</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300;1,9..40,400&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:       #080608;
+    --bg2:      #0f0b12;
+    --bg3:      #181020;
+    --card:     #100c14;
+    --border:   #261830;
+    --pink:     #f0608a;
+    --pink-lt:  #f4a7b9;
+    --pink-dim: #f0608a14;
+    --gold:     #f5c842;
+    --gold-dim: #f5c84218;
+    --white:    #f5f0f7;
+    --muted:    #8878a0;
+    --faint:    #4a3a5a;
+    --font-h:   'Syne', sans-serif;
+    --font-b:   'DM Sans', sans-serif;
+    --max:      740px;
+    --wide:     1060px;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--white);
+    font-family: var(--font-b); font-size: 17px;
+    line-height: 1.75; overflow-x: hidden;
+  }
+
+  /* ── NOISE ── */
+  body::before {
+    content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    opacity:.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top:0; left:0; right:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:1.2rem 3rem;
+    border-bottom:1px solid transparent;
+    transition: background .3s, border-color .3s;
+  }
+  nav.scrolled { background:rgba(8,6,8,.9); backdrop-filter:blur(14px); border-color:var(--border); }
+  .nav-back {
+    display:flex; align-items:center; gap:.6rem;
+    font-size:.78rem; font-weight:600; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--muted);
+    text-decoration:none; transition:color .2s;
+  }
+  .nav-back:hover { color:var(--pink); }
+  .nav-back::before { content:'←'; font-size:.9rem; }
+  .nav-title {
+    font-family:var(--font-h); font-size:.88rem; font-weight:700;
+    letter-spacing:.05em; color:var(--white); opacity:0;
+    transition:opacity .3s;
+  }
+  nav.scrolled .nav-title { opacity:1; }
+  .nav-live {
+    display:flex; align-items:center; gap:.5rem;
+    font-size:.75rem; font-weight:600; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--pink);
+    text-decoration:none; border:1px solid var(--pink);
+    padding:.4rem 1rem; border-radius:2px;
+    transition:background .2s, color .2s;
+  }
+  .nav-live:hover { background:var(--pink); color:var(--bg); }
+  .nav-live::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--pink); box-shadow:0 0 6px var(--pink); animation:blink 2s infinite; }
+
+  /* ── HERO ── */
+  .cs-hero {
+    position:relative; min-height:100vh;
+    display:flex; flex-direction:column; justify-content:flex-end;
+    padding:0 4rem 5rem; overflow:hidden;
+  }
+  .hero-bg {
+    position:absolute; inset:0;
+    background:
+      radial-gradient(ellipse 70% 60% at 50% 30%, #f0608a10 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 80% 70%, #f5c84210 0%, transparent 55%);
+  }
+  .hero-grid {
+    position:absolute; inset:0; pointer-events:none;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size:72px 72px;
+    mask-image:radial-gradient(ellipse 100% 80% at 50% 50%, black 20%, transparent 80%);
+    opacity:.4;
+  }
+  .hero-content { position:relative; z-index:1; max-width:var(--wide); margin:0 auto; width:100%; }
+  .hero-eyebrow {
+    display:flex; align-items:center; gap:1rem; margin-bottom:2.5rem;
+    opacity:0; animation:fadeUp .6s .2s forwards;
+  }
+  .hero-tag {
+    font-size:.72rem; font-weight:700; letter-spacing:.2em;
+    text-transform:uppercase; color:var(--pink);
+    border:1px solid var(--pink); padding:.3rem .8rem; border-radius:2px;
+  }
+  .hero-tag.gold { color:var(--gold); border-color:var(--gold); }
+  .hero-sep { width:1px; height:16px; background:var(--faint); }
+
+  .hero-title {
+    font-family:var(--font-h);
+    font-size:clamp(4.5rem,10vw,9rem);
+    font-weight:800; line-height:.88; letter-spacing:-.05em;
+    color:var(--white); margin-bottom:1.5rem;
+    opacity:0; animation:fadeUp .8s .35s forwards;
+  }
+  .hero-title .pink { color:var(--pink); }
+  .hero-title .gold { color:var(--gold); }
+
+  .hero-sub {
+    font-size:clamp(1rem,2vw,1.25rem); font-weight:300;
+    color:var(--muted); max-width:600px; line-height:1.8;
+    opacity:0; animation:fadeUp .7s .55s forwards;
+    margin-bottom:3rem;
+  }
+  .hero-sub strong { color:var(--white); font-weight:500; }
+
+  .hero-meta {
+    display:flex; gap:3rem; flex-wrap:wrap;
+    opacity:0; animation:fadeUp .7s .7s forwards;
+    padding-top:2.5rem;
+    border-top:1px solid var(--border);
+  }
+  .hm-item { display:flex; flex-direction:column; gap:.3rem; }
+  .hm-label { font-size:.68rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); }
+  .hm-value { font-size:.9rem; color:var(--white); font-weight:500; }
+  .hm-value a { color:var(--pink); text-decoration:none; }
+  .hm-value a:hover { text-decoration:underline; }
+
+  /* ── SCROLL INDICATOR ── */
+  .scroll-cue {
+    position:absolute; bottom:2.5rem; right:4rem;
+    display:flex; flex-direction:column; align-items:center; gap:.5rem;
+    opacity:0; animation:fadeUp .6s 1s forwards;
+  }
+  .scroll-cue span { font-size:.68rem; letter-spacing:.16em; text-transform:uppercase; color:var(--faint); writing-mode:vertical-rl; }
+  .scroll-ln { width:1px; height:48px; background:linear-gradient(var(--pink),transparent); animation:sPulse 2.2s infinite; }
+
+  /* ── BODY LAYOUT ── */
+  .cs-body { position:relative; z-index:1; }
+  .cs-section { padding:6rem 4rem; }
+  .cs-section.dark { background:var(--bg2); }
+  .cs-inner { max-width:var(--max); margin:0 auto; }
+  .cs-wide  { max-width:var(--wide); margin:0 auto; }
+
+  /* chapter label */
+  .chapter {
+    display:flex; align-items:center; gap:.8rem;
+    margin-bottom:2.5rem;
+  }
+  .chapter-num {
+    font-family:var(--font-h); font-size:.68rem; font-weight:700;
+    letter-spacing:.22em; text-transform:uppercase; color:var(--pink);
+  }
+  .chapter-line { width:32px; height:1px; background:var(--pink); }
+  .chapter-name {
+    font-size:.68rem; font-weight:600; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--faint);
+  }
+
+  /* section headings */
+  .cs-h2 {
+    font-family:var(--font-h);
+    font-size:clamp(2rem,4vw,2.9rem);
+    font-weight:800; letter-spacing:-.03em;
+    color:var(--white); line-height:1.1; margin-bottom:2rem;
+  }
+  .cs-h2 em { color:var(--pink); font-style:normal; }
+  .cs-h2 .gold { color:var(--gold); }
+
+  /* body prose */
+  .prose p {
+    color:var(--muted); line-height:1.9; font-size:1.05rem;
+    margin-bottom:1.4rem; font-weight:300;
+  }
+  .prose p strong { color:var(--white); font-weight:500; }
+  .prose p:last-child { margin-bottom:0; }
+
+  /* pull quote */
+  .pullquote {
+    border-left:3px solid var(--pink);
+    padding:1.2rem 0 1.2rem 2rem;
+    margin:3rem 0;
+  }
+  .pullquote p {
+    font-family:var(--font-h);
+    font-size:clamp(1.2rem,2.5vw,1.7rem);
+    font-weight:700; letter-spacing:-.02em;
+    color:var(--white); line-height:1.35;
+    margin:0;
+  }
+  .pullquote cite {
+    display:block; margin-top:.7rem;
+    font-size:.78rem; color:var(--faint);
+    font-style:normal; letter-spacing:.08em;
+  }
+
+  /* ── NAME ORIGIN CARD ── */
+  .name-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:6px; padding:3rem;
+    position:relative; overflow:hidden; margin:3rem 0;
+  }
+  .name-card::before {
+    content:''; position:absolute;
+    top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg, var(--pink), var(--gold));
+  }
+  .name-card-word {
+    font-family:var(--font-h);
+    font-size:clamp(3rem,7vw,5.5rem);
+    font-weight:800; letter-spacing:-.05em; line-height:1;
+    color:var(--white); margin-bottom:1rem;
+  }
+  .name-card-word span.pink { color:var(--pink); }
+  .name-card-word span.gold { color:var(--gold); }
+  .name-card p { color:var(--muted); font-size:1rem; line-height:1.85; max-width:520px; }
+  .name-card p strong { color:var(--white); font-weight:500; }
+  .name-card-glow {
+    position:absolute; right:-60px; top:-60px;
+    width:280px; height:280px;
+    background:radial-gradient(circle, #f5c84215 0%, transparent 65%);
+    pointer-events:none;
+  }
+
+  /* ── PROBLEM GRID ── */
+  .problem-grid {
+    display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:1.2rem; margin-top:3rem;
+  }
+  .prob-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:4px; padding:1.8rem;
+    transition:border-color .3s, transform .3s;
+  }
+  .prob-card:hover { border-color:var(--pink); transform:translateY(-3px); }
+  .prob-icon { font-size:1.5rem; margin-bottom:.8rem; }
+  .prob-who {
+    font-size:.7rem; font-weight:700; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--pink); margin-bottom:.5rem;
+  }
+  .prob-card h4 {
+    font-family:var(--font-h); font-size:1rem; font-weight:700;
+    color:var(--white); margin-bottom:.5rem;
+  }
+  .prob-card p { font-size:.88rem; color:var(--muted); line-height:1.65; }
+
+  /* ── TIMELINE ── */
+  .timeline { margin-top:3rem; display:flex; flex-direction:column; gap:0; }
+  .tl-item {
+    display:grid; grid-template-columns:120px 1fr;
+    gap:0 2.5rem; padding:2rem 0;
+    border-bottom:1px solid var(--border);
+    position:relative;
+  }
+  .tl-item:first-child { border-top:1px solid var(--border); }
+  .tl-item::before {
+    content:''; position:absolute;
+    left:120px; top:0; bottom:0; width:1px; background:var(--border);
+  }
+  .tl-phase {
+    font-size:.72rem; font-weight:700; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--pink); padding-right:1rem;
+    padding-top:.2rem;
+  }
+  .tl-body { padding-left:2.5rem; }
+  .tl-title {
+    font-family:var(--font-h); font-size:1.1rem; font-weight:700;
+    color:var(--white); margin-bottom:.5rem;
+  }
+  .tl-desc { font-size:.92rem; color:var(--muted); line-height:1.75; }
+  .tl-badge {
+    display:inline-block; margin-top:.6rem;
+    font-size:.68rem; font-weight:700; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--bg);
+    background:var(--pink); padding:.18rem .6rem; border-radius:2px;
+  }
+  .tl-badge.gold { background:var(--gold); }
+
+  /* ── CHALLENGE CARDS ── */
+  .challenge-grid {
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:1.4rem; margin-top:3rem;
+  }
+  .ch-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:4px; padding:2rem;
+    transition:border-color .3s;
+  }
+  .ch-card:hover { border-color:var(--gold); }
+  .ch-num {
+    font-family:var(--font-h); font-size:2.2rem; font-weight:800;
+    color:var(--border); letter-spacing:-.05em; line-height:1;
+    margin-bottom:.8rem;
+  }
+  .ch-card h4 {
+    font-family:var(--font-h); font-size:1rem; font-weight:700;
+    color:var(--white); margin-bottom:.6rem;
+  }
+  .ch-card p { font-size:.9rem; color:var(--muted); line-height:1.72; }
+  .ch-card p strong { color:var(--white); font-weight:500; }
+
+  /* ── FEATURE SHOWCASE ── */
+  .feature-grid {
+    display:grid; grid-template-columns:1fr 1fr;
+    gap:1.3rem; margin-top:3rem;
+  }
+  .feat {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:4px; padding:1.8rem;
+    position:relative; overflow:hidden;
+    transition:border-color .3s, transform .3s;
+  }
+  .feat::after {
+    content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, var(--pink), var(--gold));
+    transform:scaleX(0); transform-origin:left; transition:transform .3s;
+  }
+  .feat:hover { border-color:var(--faint); transform:translateY(-3px); }
+  .feat:hover::after { transform:scaleX(1); }
+  .feat.wide { grid-column:span 2; }
+  .feat-icon { font-size:1.6rem; margin-bottom:1rem; }
+  .feat-tag {
+    font-size:.68rem; font-weight:700; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--pink); margin-bottom:.5rem;
+  }
+  .feat h4 {
+    font-family:var(--font-h); font-size:1.05rem; font-weight:700;
+    color:var(--white); margin-bottom:.6rem;
+  }
+  .feat p { font-size:.9rem; color:var(--muted); line-height:1.72; }
+  .feat p strong { color:var(--white); font-weight:500; }
+
+  /* ── STATS BAR ── */
+  .stats-bar {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:6px; padding:2.5rem 3rem;
+    display:grid; grid-template-columns:repeat(4,1fr);
+    gap:2rem; margin:3rem 0;
+    position:relative; overflow:hidden;
+  }
+  .stats-bar::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, var(--pink), var(--gold), var(--pink));
+  }
+  .stat { display:flex; flex-direction:column; }
+  .stat-n {
+    font-family:var(--font-h); font-size:2.6rem; font-weight:800;
+    letter-spacing:-.05em; line-height:1; color:var(--white);
+  }
+  .stat-n span { color:var(--pink); }
+  .stat-n .g { color:var(--gold); }
+  .stat-l { font-size:.72rem; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; margin-top:.4rem; }
+  .stat-sub { font-size:.78rem; color:var(--faint); margin-top:.2rem; }
+
+  /* ── PIVOT CARD ── */
+  .pivot-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:6px; padding:2.5rem 3rem;
+    display:grid; grid-template-columns:1fr auto 1fr;
+    gap:2rem; align-items:center; margin:3rem 0;
+  }
+  .pivot-name {
+    font-family:var(--font-h); font-size:2.4rem; font-weight:800;
+    letter-spacing:-.04em; line-height:1;
+  }
+  .pivot-name.struck { color:var(--faint); text-decoration:line-through; text-decoration-color:var(--pink); }
+  .pivot-name.live { color:var(--white); }
+  .pivot-name.live span { color:var(--gold); }
+  .pivot-arrow { font-size:2rem; color:var(--pink); text-align:center; }
+  .pivot-reason { font-size:.9rem; color:var(--muted); line-height:1.75; }
+  .pivot-reason strong { color:var(--white); font-weight:500; }
+
+  /* ── WHAT'S NEXT ── */
+  .next-grid {
+    display:grid; grid-template-columns:repeat(3,1fr);
+    gap:1.2rem; margin-top:3rem;
+  }
+  .next-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:4px; padding:1.8rem;
+    transition:border-color .3s;
+  }
+  .next-card:hover { border-color:var(--gold); }
+  .next-phase {
+    font-size:.68rem; font-weight:700; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--gold); margin-bottom:.6rem;
+  }
+  .next-card h4 {
+    font-family:var(--font-h); font-size:1rem; font-weight:700;
+    color:var(--white); margin-bottom:.5rem;
+  }
+  .next-card p { font-size:.88rem; color:var(--muted); line-height:1.65; }
+
+  /* ── CTA ── */
+  .cs-cta {
+    background:var(--bg2);
+    border-top:1px solid var(--border);
+    padding:6rem 4rem;
+    text-align:center;
+  }
+  .cta-inner { max-width:600px; margin:0 auto; }
+  .cta-inner h2 {
+    font-family:var(--font-h);
+    font-size:clamp(2rem,4vw,3rem);
+    font-weight:800; letter-spacing:-.03em;
+    color:var(--white); line-height:1.1; margin-bottom:1.2rem;
+  }
+  .cta-inner h2 em { color:var(--pink); font-style:normal; }
+  .cta-inner p { color:var(--muted); font-size:1rem; margin-bottom:2.5rem; line-height:1.8; }
+  .cta-btns { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+  .cta-p {
+    display:inline-flex; align-items:center; gap:.5rem;
+    background:var(--pink); color:var(--bg);
+    font-family:var(--font-b); font-weight:700; font-size:.9rem;
+    letter-spacing:.04em; padding:.9rem 2.2rem;
+    text-decoration:none; border-radius:2px;
+    transition:transform .2s, box-shadow .2s;
+  }
+  .cta-p:hover { transform:translateY(-2px); box-shadow:0 10px 30px #f0608a35; }
+  .cta-g {
+    display:inline-flex; align-items:center; gap:.5rem;
+    border:1px solid var(--border); color:var(--muted);
+    font-family:var(--font-b); font-weight:500; font-size:.9rem;
+    padding:.9rem 2.2rem; text-decoration:none; border-radius:2px;
+    transition:border-color .2s, color .2s;
+  }
+  .cta-g:hover { border-color:var(--pink-lt); color:var(--pink-lt); }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top:1px solid var(--border); padding:1.8rem 4rem;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  footer p { font-size:.78rem; color:var(--faint); }
+  footer a { color:var(--pink); text-decoration:none; }
+  footer a:hover { text-decoration:underline; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp { from{opacity:0;transform:translateY(26px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes blink { 0%,100%{opacity:.5} 50%{opacity:1} }
+  @keyframes sPulse { 0%,100%{opacity:.3} 50%{opacity:1} }
+
+  .reveal { opacity:0; transform:translateY(28px); transition:opacity .75s ease, transform .75s ease; }
+  .reveal.visible { opacity:1; transform:translateY(0); }
+  .reveal-delay-1 { transition-delay:.1s; }
+  .reveal-delay-2 { transition-delay:.2s; }
+  .reveal-delay-3 { transition-delay:.3s; }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:900px){
+    nav { padding:1.2rem 2rem; }
+    .cs-hero { padding:0 2rem 4rem; }
+    .cs-section { padding:5rem 2rem; }
+    .challenge-grid { grid-template-columns:1fr; }
+    .feature-grid { grid-template-columns:1fr; }
+    .feat.wide { grid-column:span 1; }
+    .stats-bar { grid-template-columns:1fr 1fr; }
+    .next-grid { grid-template-columns:1fr; }
+    .pivot-card { grid-template-columns:1fr; text-align:center; }
+    .pivot-arrow { transform:rotate(90deg); }
+    footer { flex-direction:column; gap:1rem; text-align:center; }
+    .tl-item { grid-template-columns:1fr; }
+    .tl-item::before { display:none; }
+    .tl-body { padding-left:0; margin-top:.5rem; }
+    .cs-cta { padding:5rem 2rem; }
+  }
+  @media(max-width:600px){
+    .stats-bar { grid-template-columns:1fr 1fr; padding:2rem; }
+    .problem-grid { grid-template-columns:1fr; }
+    .hero-meta { gap:2rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="nav-back" href="index.html">Portfolio</a>
+  <span class="nav-title">Baizmnt — Case Study</span>
+  <a class="nav-live" href="https://baizmnt.com" target="_blank" rel="noopener">Visit Live Site</a>
+</nav>
+
+<!-- HERO -->
+<section class="cs-hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="scroll-cue"><div class="scroll-ln"></div><span>Read</span></div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span class="hero-tag">Case Study</span>
+      <div class="hero-sep"></div>
+      <span class="hero-tag gold">Live Product</span>
+      <div class="hero-sep"></div>
+      <span class="hero-tag">Founder &amp; Engineer</span>
+    </div>
+
+    <h1 class="hero-title">
+      Baiz<span class="pink">mnt</span><span class="gold">.</span>
+    </h1>
+
+    <p class="hero-sub">
+      How I identified a fragmented market, wrote the product vision,
+      designed the experience, and shipped a <strong>full-stack nightlife
+      discovery and booking ecosystem</strong> — solo, in 6+ months,
+      from zero to live users.
+    </p>
+
+    <div class="hero-meta">
+      <div class="hm-item">
+        <span class="hm-label">Role</span>
+        <span class="hm-value">Founder · Product · Engineering · Design</span>
+      </div>
+      <div class="hm-item">
+        <span class="hm-label">Timeline</span>
+        <span class="hm-value">6+ months · Launched March 14, 2025</span>
+      </div>
+      <div class="hm-item">
+        <span class="hm-label">Stack</span>
+        <span class="hm-value">React · TypeScript · TailwindCSS · Supabase</span>
+      </div>
+      <div class="hm-item">
+        <span class="hm-label">Live At</span>
+        <span class="hm-value"><a href="https://baizmnt.com" target="_blank" rel="noopener">baizmnt.com →</a></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="cs-body">
+
+  <!-- ══ 01: THE NAME ══ -->
+  <section class="cs-section">
+    <div class="cs-inner">
+      <div class="chapter reveal"><span class="chapter-num">01</span><div class="chapter-line"></div><span class="chapter-name">The Name</span></div>
+      <h2 class="cs-h2 reveal">Everything starts in <em>the basement.</em></h2>
+
+      <div class="name-card reveal">
+        <div class="name-card-glow"></div>
+        <div class="name-card-word"><span class="pink">Baiz</span><span class="gold">mnt</span></div>
+        <p>Inspired by the word <strong>Basement</strong> &mdash; because the real backbone of the entertainment scene lives underground. It&rsquo;s one thing to attend an event, make memories, and find lifelong companions in a crowd. But immense work went into making that moment happen. Work that lives where no one else sees it: <strong>in the basement</strong>, where the hosts, organisers, DJs, and crews pour themselves into building something for others to experience.</p>
+      </div>
+
+      <div class="prose reveal">
+        <p>The name Baizmnt was chosen to do two things simultaneously: <strong>acknowledge the unseen labour</strong> of everyone who makes nightlife possible, and <strong>make that labour easier</strong> &mdash; for every host, organiser, DJ, photographer, and venue owner who has a great idea but needs a cleaner path to realising it.</p>
+        <p>The intentional stylisation &mdash; dropping the vowels &mdash; gives the brand a sharp, modern identity that fits the culture it&rsquo;s built for. It&rsquo;s not corporate. It&rsquo;s not generic. It&rsquo;s the city&rsquo;s pulse.</p>
+      </div>
+
+      <div class="pullquote reveal">
+        <p>&ldquo;The real backbone of the entertainment scene is in the underground. The basement. Baizmnt exists to acknowledge that work &mdash; and make it easier.&rdquo;</p>
+        <cite>&mdash; Flo Ogbaje, Founder</cite>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 02: THE PROBLEM ══ -->
+  <section class="cs-section dark">
+    <div class="cs-wide">
+      <div class="chapter reveal"><span class="chapter-num">02</span><div class="chapter-line"></div><span class="chapter-name">The Problem</span></div>
+      <h2 class="cs-h2 reveal">A thriving scene held together <em>with tape.</em></h2>
+
+      <div class="cs-inner">
+        <div class="prose reveal">
+          <p>Nigeria&rsquo;s nightlife and entertainment scene is genuinely vibrant &mdash; Lagos especially runs on it. But the infrastructure holding it together is fragmented, unreliable, and built around personal connections rather than accessible systems. Finding out about a rave happening this weekend meant scrolling Instagram stories, asking friends, or hoping a promoter remembered to post. <strong>Discovery was word-of-mouth. Booking was who-you-know. Ticketing was one-way.</strong></p>
+          <p>The deeper you looked, the worse it got. Virtually no one had built a tool that treated every participant in the nightlife ecosystem as a first-class citizen.</p>
+        </div>
+      </div>
+
+      <div class="problem-grid">
+        <div class="prob-card reveal">
+          <div class="prob-icon">🎉</div>
+          <div class="prob-who">Partygoers</div>
+          <h4>No reliable discovery</h4>
+          <p>Finding quality events meant relying entirely on social media stories, WhatsApp groups, or knowing the right people. FOMO was constant. Real-time info simply didn&rsquo;t exist.</p>
+        </div>
+        <div class="prob-card reveal reveal-delay-1">
+          <div class="prob-icon">🎧</div>
+          <div class="prob-who">DJs</div>
+          <h4>Visibility locked behind relationships</h4>
+          <p>Getting booked meant personally knowing the host or being recommended by someone who did. Upcoming DJs and those new to a city had almost no route to visibility or new gigs.</p>
+        </div>
+        <div class="prob-card reveal reveal-delay-2">
+          <div class="prob-icon">📋</div>
+          <div class="prob-who">Organisers</div>
+          <h4>Fragmented operations</h4>
+          <p>Creating an event required juggling separate tools for ticketing, DJ booking, venue sourcing, equipment hire, and promotion. No single platform connected all these needs.</p>
+        </div>
+        <div class="prob-card reveal reveal-delay-3">
+          <div class="prob-icon">🎟️</div>
+          <div class="prob-who">Ticket holders</div>
+          <h4>No resale option</h4>
+          <p>PayStack is widely used for ticket sales &mdash; but if a buyer could no longer attend, there was no legitimate way to resell. Tickets were simply lost money.</p>
+        </div>
+        <div class="prob-card reveal">
+          <div class="prob-icon">🏢</div>
+          <div class="prob-who">Venues &amp; Studios</div>
+          <h4>No unified directory</h4>
+          <p>Venues, studios, and equipment owners had no central place to list availability and reach organisers actively looking to book them. Discoverability was near zero.</p>
+        </div>
+        <div class="prob-card reveal reveal-delay-1">
+          <div class="prob-icon">📍</div>
+          <div class="prob-who">Everyone</div>
+          <h4>No real-time situational tools</h4>
+          <p>Once you were out, finding friends, locating an event, or knowing what was happening nearby required a patchwork of separate apps &mdash; none of which understood the nightlife context.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 03: THE PIVOT ══ -->
+  <section class="cs-section">
+    <div class="cs-inner">
+      <div class="chapter reveal"><span class="chapter-num">03</span><div class="chapter-line"></div><span class="chapter-name">The Naming Pivot</span></div>
+      <h2 class="cs-h2 reveal">From <em>Plurr</em> to <span class="gold">Baizmnt.</span></h2>
+
+      <div class="prose reveal">
+        <p>The product didn&rsquo;t begin with the name Baizmnt. The original name was <strong>Plurr</strong> &mdash; a reference to the rave community acronym for Peace, Love, Unity, Respect, and Responsibility. It felt right. It was culturally grounded, community-forward, and had the right energy for the platform&rsquo;s vision.</p>
+        <p>But during the build, market research revealed the name was already taken. Rather than launch under a name with prior ownership, the decision was made to pivot early &mdash; before any brand equity had been built, and before any public-facing marketing had gone out.</p>
+      </div>
+
+      <div class="pivot-card reveal">
+        <div>
+          <div class="pivot-name struck">Plurr</div>
+          <p style="font-size:.82rem;color:var(--faint);margin-top:.5rem;">Original concept name.<br>Name conflict discovered during research.</p>
+        </div>
+        <div class="pivot-arrow">→</div>
+        <div>
+          <div class="pivot-name live">Baiz<span>mnt</span></div>
+          <p style="font-size:.82rem;color:var(--muted);margin-top:.5rem;"><strong style="color:var(--white)">A stronger identity.</strong> Deeper meaning. Entirely original. Built to last.</p>
+        </div>
+      </div>
+
+      <div class="prose reveal">
+        <p>The pivot turned out to be the better outcome. Baizmnt has a richer conceptual foundation than Plurr ever did &mdash; it&rsquo;s not just a cultural reference, it&rsquo;s a <strong>founding philosophy</strong>. The underground metaphor runs through the entire product: visibility for the unseen, tools for the unsung, a stage for everyone who builds from the basement up.</p>
+        <p>The decision to pivot early rather than late is also worth noting as a product discipline signal. <strong>Catching a naming conflict before launch costs almost nothing. After launch, it&rsquo;s a crisis.</strong></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 04: THE BUILD ══ -->
+  <section class="cs-section dark">
+    <div class="cs-wide">
+      <div class="chapter reveal"><span class="chapter-num">04</span><div class="chapter-line"></div><span class="chapter-name">The Build</span></div>
+      <h2 class="cs-h2 reveal">Six months. One person. <em>Every decision.</em></h2>
+
+      <div class="cs-inner">
+        <div class="prose reveal">
+          <p>Baizmnt was built entirely solo &mdash; no co-founder, no dedicated designer, no engineering team. Every product decision, every architecture choice, every UI iteration, and every line of code was owned by one person. That constraint forced a level of clarity and prioritisation that a larger team might have diluted.</p>
+          <p>The approach was deliberate: <strong>write the full PRD first</strong> to lock in the product vision before a single component was built. Define the users. Define the problems. Define the MVP scope. Only then start building. This product thinking discipline &mdash; treating engineering as the execution of a clear strategy rather than the strategy itself &mdash; is what allowed a complex, multi-sided platform to ship in a focused, coherent state.</p>
+        </div>
+      </div>
+
+      <div class="timeline reveal">
+        <div class="tl-item">
+          <div class="tl-phase">Phase 1</div>
+          <div class="tl-body">
+            <div class="tl-title">Research &amp; Problem Definition</div>
+            <div class="tl-desc">Mapped the fragmentation across the Nigerian nightlife ecosystem. Identified six distinct user types and their specific pain points. Validated the gap through personal experience and community observation. Defined the product&rsquo;s core philosophy: <em>simplification through unification.</em></div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-phase">Phase 2</div>
+          <div class="tl-body">
+            <div class="tl-title">PRD &amp; Product Architecture</div>
+            <div class="tl-desc">Wrote a full Product Requirements Document covering goals, user problems, functional requirements, non-functional requirements, user flows, business model, success metrics, risks, and a phased roadmap. This document became the single source of truth for all build decisions.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-phase">Phase 3</div>
+          <div class="tl-body">
+            <div class="tl-title">Naming Pivot: Plurr → Baizmnt</div>
+            <div class="tl-desc">Discovered the original name Plurr was already in use. Made the early pivot decision. Developed the Baizmnt identity &mdash; rooted in the basement metaphor &mdash; and locked in the brand direction before any public-facing work began.</div>
+            <span class="tl-badge">Key Decision</span>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-phase">Phase 4</div>
+          <div class="tl-body">
+            <div class="tl-title">Design &amp; Technical Architecture</div>
+            <div class="tl-desc">Designed the full UI system: dark-mode first, electric pink and warm gold brand palette, rounded card language, motion principles. Architected the technical stack: React with TypeScript, TailwindCSS, Firebase for auth and real-time data, Lovable for scaffolding acceleration, Vercel for deployment.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-phase">Phase 5</div>
+          <div class="tl-body">
+            <div class="tl-title">Core Feature Build</div>
+            <div class="tl-desc">Built and shipped: event discovery with live map &amp; directions, event creation tools for organisers, DJ and creative profiles with booking flows, ticketing with PayStack integration and peer-to-peer resell, social features, marketplace for studios/venues/equipment, beacon feature for real-time friend location, merch &amp; vendor marketplace, and full user auth with role-based access.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-phase">Launch</div>
+          <div class="tl-body">
+            <div class="tl-title">Baizmnt Goes Live &mdash; March 14, 2025</div>
+            <div class="tl-desc">Launched at baizmnt.com with real users, real events, and a functioning multi-sided ecosystem. All core MVP features live on day one.</div>
+            <span class="tl-badge gold">Live</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 05: CHALLENGES ══ -->
+  <section class="cs-section">
+    <div class="cs-wide">
+      <div class="chapter reveal"><span class="chapter-num">05</span><div class="chapter-line"></div><span class="chapter-name">Key Challenges</span></div>
+      <h2 class="cs-h2 reveal">The hard parts no one <em>sees.</em></h2>
+
+      <div class="challenge-grid">
+        <div class="ch-card reveal">
+          <div class="ch-num">01</div>
+          <h4>Shipping a multi-sided platform alone</h4>
+          <p>Baizmnt serves six distinct user types simultaneously &mdash; partygoers, DJs, organisers, venue owners, equipment providers, and photographers. <strong>Each user type has different needs, different flows, and different trust requirements.</strong> Designing and building a coherent experience for all of them without a team meant ruthless prioritisation: what does each user need to accomplish in their first session, and how do I make that frictionless?</p>
+        </div>
+        <div class="ch-card reveal reveal-delay-1">
+          <div class="ch-num">02</div>
+          <h4>Technical architecture for a real-time ecosystem</h4>
+          <p>An event discovery platform lives and dies by its real-time data. <strong>The live map, the &ldquo;happening now&rdquo; indicators, the beacon feature, and the ticketing inventory all require real-time state.</strong> Architecting Firebase to handle concurrent reads across these features, while keeping the UI performant and the UX smooth, required deliberate data modelling decisions that couldn&rsquo;t be undone later.</p>
+        </div>
+        <div class="ch-card reveal">
+          <div class="ch-num">03</div>
+          <h4>Booking &amp; marketplace logic</h4>
+          <p>A booking flow is not just a form. It involves <strong>availability state, approval workflows, payment handling, and confirmation logic</strong> &mdash; all of which need to work correctly the first time. Building this for DJs, venues, studios, and equipment simultaneously meant abstracting the core booking pattern into something reusable without sacrificing the specific UX each category needed.</p>
+        </div>
+        <div class="ch-card reveal reveal-delay-1">
+          <div class="ch-num">04</div>
+          <h4>The naming pivot mid-build</h4>
+          <p>Discovering a naming conflict mid-development on a product you&rsquo;ve been mentally calling by one name for months is disorienting. <strong>The decision to pivot immediately rather than proceed and deal with it later</strong> was the right call &mdash; but it required rebuilding the brand identity, reconsidering the product positioning, and finding a name with even more conceptual depth. Baizmnt emerged stronger for it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 06: THE PRODUCT ══ -->
+  <section class="cs-section dark">
+    <div class="cs-wide">
+      <div class="chapter reveal"><span class="chapter-num">06</span><div class="chapter-line"></div><span class="chapter-name">The Product</span></div>
+      <h2 class="cs-h2 reveal">One platform. <em>Every role.</em></h2>
+
+      <div class="cs-inner">
+        <div class="prose reveal">
+          <p>The central design principle of Baizmnt is <strong>unification without complexity</strong>. Every feature that exists on the platform is there because a real person in the nightlife ecosystem had a problem that no existing tool was solving well. The product&rsquo;s job is to disappear &mdash; to make the process so smooth that the user never has to think about the platform, only the experience they&rsquo;re moving toward.</p>
+        </div>
+      </div>
+
+      <div class="feature-grid">
+        <div class="feat reveal">
+          <div class="feat-icon">🗺️</div>
+          <div class="feat-tag">Discovery</div>
+          <h4>Live City Map &amp; Event Cards</h4>
+          <p>Users open Baizmnt and immediately see what&rsquo;s happening in their city in real time. Every event card carries a <strong>Get Directions button</strong> that opens Google Maps navigation. No searching. No scrolling through Instagram stories. The city&rsquo;s pulse, at a glance.</p>
+        </div>
+        <div class="feat reveal reveal-delay-1">
+          <div class="feat-icon">🎟️</div>
+          <div class="feat-tag">Ticketing</div>
+          <h4>Buy, Store &amp; Resell</h4>
+          <p>Tickets purchased via <strong>PayStack integration</strong> land in a QR wallet inside the app. If a user can&rsquo;t attend, the resell feature connects them directly to other users who need their ticket &mdash; a peer-to-peer system that didn&rsquo;t exist in this market before Baizmnt.</p>
+        </div>
+        <div class="feat reveal">
+          <div class="feat-icon">🎧</div>
+          <div class="feat-tag">Booking</div>
+          <h4>DJ &amp; Creative Marketplace</h4>
+          <p>DJs, photographers, and dancers have portfolio profiles with music links, pricing, and availability calendars. Organisers send booking requests directly. <strong>Upcoming DJs get the same visibility as established ones</strong> &mdash; the playing field is the quality of the profile, not who you know.</p>
+        </div>
+        <div class="feat reveal reveal-delay-1">
+          <div class="feat-icon">📡</div>
+          <div class="feat-tag">Safety &amp; Social</div>
+          <h4>Beacon Feature</h4>
+          <p>On a night out, users can activate a beacon to help friends find them, locate friends they haven&rsquo;t seen for a while, or get found if they need to be. <strong>A real-time safety and social layer</strong> built specifically for the unpredictability of nightlife environments.</p>
+        </div>
+        <div class="feat reveal">
+          <div class="feat-icon">🏢</div>
+          <div class="feat-tag">Marketplace</div>
+          <h4>Venues, Studios &amp; Equipment</h4>
+          <p>Organisers planning an event can source their DJ, their venue, their stage equipment, their lighting rig, and their photographer all within one platform. <strong>Every operational need an event host has, addressed in one place.</strong></p>
+        </div>
+        <div class="feat reveal reveal-delay-1">
+          <div class="feat-icon">🛍️</div>
+          <div class="feat-tag">Extended Marketplace</div>
+          <h4>Merch &amp; Vendors</h4>
+          <p>The marketplace extends beyond event logistics to merchandise and vendor listings &mdash; expanding Baizmnt&rsquo;s role from event discovery tool to a <strong>full commerce layer for the nightlife economy</strong>.</p>
+        </div>
+        <div class="feat wide reveal">
+          <div class="feat-icon">📋</div>
+          <div class="feat-tag">Organiser Tools</div>
+          <h4>End-to-End Event Creation &amp; Management</h4>
+          <p>Organisers publish events with full detail: flyer, lineup, set times, ticket tiers, dress code, parking, rules, and directions. They track sales, manage comments, and update event info in real time. <strong>Everything an organiser needs from idea to night-of, in one workflow.</strong> No spreadsheets. No WhatsApp coordination threads. No separate ticketing link.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 07: RESULTS ══ -->
+  <section class="cs-section">
+    <div class="cs-inner">
+      <div class="chapter reveal"><span class="chapter-num">07</span><div class="chapter-line"></div><span class="chapter-name">Early Results</span></div>
+      <h2 class="cs-h2 reveal">10 days in. <em>Real numbers.</em></h2>
+
+      <div class="prose reveal">
+        <p>Baizmnt launched on <strong>March 14, 2025</strong>. These are the honest, unspun numbers from the first ten days &mdash; no inflated claims, no vanity metrics. A multi-sided marketplace starting from zero in a market that&rsquo;s never had one.</p>
+      </div>
+
+      <div class="stats-bar reveal">
+        <div class="stat">
+          <div class="stat-n">220<span>+</span></div>
+          <div class="stat-l">Total Visits</div>
+          <div class="stat-sub">First 10 days</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">11</div>
+          <div class="stat-l">Registered Users</div>
+          <div class="stat-sub">Organic, no paid acquisition</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">4</div>
+          <div class="stat-l">Live Events</div>
+          <div class="stat-sub">Created by real organisers</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">3<span class="g">+</span></div>
+          <div class="stat-l">DJs Onboarded</div>
+          <div class="stat-sub">With active profiles</div>
+        </div>
+      </div>
+
+      <div class="prose reveal">
+        <p>For a platform this young, with zero paid marketing, these numbers tell a clear story: <strong>the product is finding its first users organically</strong>, and importantly, it&rsquo;s finding the right users &mdash; DJs and organisers who represent the supply side of the marketplace, not just passive browsers. A multi-sided platform lives or dies by whether both sides show up. Both sides showed up in week one.</p>
+        <p>The path ahead is community growth. <strong>The more users who join for different reasons, the more the ecosystem feeds itself</strong> &mdash; an organiser finds a DJ, a partygoer discovers an event, a photographer gets booked. That cross-pollination is what Baizmnt was designed to catalyse.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 08: WHAT'S NEXT ══ -->
+  <section class="cs-section dark">
+    <div class="cs-wide">
+      <div class="chapter reveal"><span class="chapter-num">08</span><div class="chapter-line"></div><span class="chapter-name">What&rsquo;s Next</span></div>
+      <h2 class="cs-h2 reveal">Phase 2 and the <em>community vision.</em></h2>
+
+      <div class="cs-inner">
+        <div class="prose reveal">
+          <p>The MVP is live and the ecosystem is forming. Phase 2 is about deepening the product&rsquo;s value in three directions: smarter discovery, richer social infrastructure, and the feature I&rsquo;m most excited about &mdash; <strong>Community</strong>.</p>
+          <p>The goal isn&rsquo;t just an app where people find events. The goal is a platform where the partygoer, the DJ, the organiser, and the photographer interact with each other naturally &mdash; where the lines between user types blur into a genuine nightlife community. <strong>That cross-communication between people who onboarded for entirely different reasons is what creates an ecosystem that can&rsquo;t be replicated by any single-use tool.</strong></p>
+        </div>
+      </div>
+
+      <div class="next-grid">
+        <div class="next-card reveal">
+          <div class="next-phase">Most Excited</div>
+          <h4>Community Layer</h4>
+          <p>In-app messaging, community boards, and cross-user interaction that turns Baizmnt from a marketplace into a living nightlife network. The goal: a DJ connects with a photographer, an organiser discovers a new venue owner, a regular user becomes a promoter.</p>
+        </div>
+        <div class="next-card reveal reveal-delay-1">
+          <div class="next-phase">Phase 2</div>
+          <h4>AI Recommendation Engine</h4>
+          <p>Personalised event and DJ recommendations based on past attendance, saved events, genre preferences, and location patterns. Discovery that gets smarter the more you use it.</p>
+        </div>
+        <div class="next-card reveal reveal-delay-2">
+          <div class="next-phase">Phase 2</div>
+          <h4>Live Rave Heat Map</h4>
+          <p>A real-time city map showing crowd density and activity levels at active events &mdash; helping users feel the energy of the city before they even leave the house.</p>
+        </div>
+        <div class="next-card reveal">
+          <div class="next-phase">Phase 3</div>
+          <h4>Event Livestreams</h4>
+          <p>Video-first event teasers and post-event aftermovie hosting &mdash; turning Baizmnt into the content home for nightlife culture, not just the booking layer underneath it.</p>
+        </div>
+        <div class="next-card reveal reveal-delay-1">
+          <div class="next-phase">Phase 3</div>
+          <h4>Loyalty &amp; Gamification</h4>
+          <p>Loyalty coins, attendance streaks, and community reputation systems that reward consistent engagement &mdash; deepening retention for every user type on the platform.</p>
+        </div>
+        <div class="next-card reveal reveal-delay-2">
+          <div class="next-phase">Phase 3</div>
+          <h4>In-App Check-In</h4>
+          <p>A native event check-in system that connects ticket scanning, attendance tracking, and post-event analytics for organisers &mdash; closing the loop from ticket purchase to door entry.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ 09: REFLECTION ══ -->
+  <section class="cs-section">
+    <div class="cs-inner">
+      <div class="chapter reveal"><span class="chapter-num">09</span><div class="chapter-line"></div><span class="chapter-name">Reflection</span></div>
+      <h2 class="cs-h2 reveal">What building Baizmnt <em>taught me.</em></h2>
+
+      <div class="prose reveal">
+        <p>Building a multi-sided platform solo is an education that no job can fully replicate. You make every decision with incomplete information, under real constraints, with real consequences. There&rsquo;s no one to defer to and no one to blame when something doesn&rsquo;t work. That accountability sharpens everything &mdash; your scoping instincts, your architecture choices, your willingness to cut a feature to ship on time.</p>
+        <p>The thing I&rsquo;m most proud of about Baizmnt isn&rsquo;t any individual feature. <strong>It&rsquo;s the ecosystem.</strong> The fact that a DJ and an event organiser and a partygoer can all open the same app and each find something built specifically for them &mdash; and then find each other &mdash; is the hardest kind of product problem to solve. It requires thinking about users not as isolated personas but as participants in a shared economy.</p>
+        <p>I built Baizmnt because the gap was real and no one else was filling it. I built it the way I did &mdash; with a PRD, a clear philosophy, deliberate tooling choices, and a long build rather than a quick one &mdash; because the nightlife community deserves a product built with genuine care. <strong>The basement crowd always has.</strong></p>
+      </div>
+
+      <div class="pullquote reveal">
+        <p>&ldquo;Simplicity is the main idea. Putting everything together in a way that works without hassle for the user &mdash; that&rsquo;s the goal. It took real thought to build and requires continuous work to maintain.&rdquo;</p>
+        <cite>&mdash; Flo Ogbaje, on what she&rsquo;s most proud of</cite>
+      </div>
+    </div>
+  </section>
+
+</div><!-- end cs-body -->
+
+<!-- CTA -->
+<div class="cs-cta">
+  <div class="cta-inner">
+    <h2>Experience <em>Baizmnt</em> yourself.</h2>
+    <p>The platform is live with real users, real events, and a growing community. Visit the site, explore the ecosystem, or reach out to talk about what comes next.</p>
+    <div class="cta-btns">
+      <a href="https://baizmnt.com" target="_blank" rel="noopener" class="cta-p">Visit Baizmnt →</a>
+      <a href="flo_portfolio.html#contact" class="cta-g">Talk to Flo</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>Case study by <a href="flo_portfolio.html">Flo Ogbaje</a> &mdash; Frontend Engineer &amp; Founder</p>
+  <p>&copy; 2025 Flo Ogbaje</p>
+</footer>
+
+<script>
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 80));
+
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
